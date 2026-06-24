@@ -1,5 +1,4 @@
-//import { Link } from "react-router-dom";
-
+import { Link } from "react-router-dom";
 import React from "react";
 import "./App.css";
 
@@ -31,9 +30,7 @@ function Home() {
       <div className="page-body">
         
         
-        <p>
-          Testing
-        </p>
+        <Link to="/Start">Start</Link>
         
       </div>
     </div>
