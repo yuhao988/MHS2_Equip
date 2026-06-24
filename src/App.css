@@ -27,7 +27,7 @@
 }
 
 .page-header {
-  background-image: url("../public/Images/Pictures/MainLogo.jpg");
+  /* background-image: url("../public/Images/Pictures/MainLogo.jpg"); */
   background-size: 50% auto; /* Wider than container */
   background-position: left; /* Keep centered */
   

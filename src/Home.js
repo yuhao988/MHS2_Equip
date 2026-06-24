@@ -25,7 +25,7 @@ function Home() {
   return (
     <div>
       <header className="page-header">
-        <h1>Monster Hunter Stories 2 Equipments</h1>
+        <h1>Monster Hunter Stories Spinoff Test</h1>
       </header>
 
       <div className="page-body">

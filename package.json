@@ -10,11 +10,11 @@
     "react-dom": "^18.2.0",
     "react-modal": "^3.16.1",
     "react-router-dom": "^6.20.1",
-    "react-scripts": "^0.0.0",
+    "react-scripts": "^5.0.1",
     "sqlite3": "^6.0.1",
     "web-vitals": "^2.1.4"
   },
-  "homepage": "https://yuhao988.github.io/DarkDeity2/",
+  
   "scripts": {
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
