@@ -2,7 +2,7 @@
   {
     "id": 0,
     "Name": "Power1",
-    "HP": 100,
+    "HP": 200,
     "Attack": 60,
     "Break": 20,
     "Defence": 30,
@@ -14,7 +14,7 @@
   {
     "id": 1,
     "Name": "Tech1",
-    "HP": 100,
+    "HP": 200,
     "Attack": 50,
     "Break": 25,
     "Defence": 30,
@@ -26,7 +26,7 @@
   {
     "id": 2,
     "Name": "Speed1",
-    "HP": 100,
+    "HP": 200,
     "Attack": 50,
     "Break": 20,
     "Defence": 30,
