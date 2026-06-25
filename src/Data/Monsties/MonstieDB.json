@@ -1,5 +1,38 @@
 [
-  { "id": 0, "Name": "Power1" },
-  { "id": 1, "Name": "Tech1" },
-  { "id": 2, "Name": "Speed1" }
+  {
+    "id": 0,
+    "Name": "Power1",
+    "HP": 100,
+    "Attack": 60,
+    "Break": 20,
+    "Defence": 30,
+    "Speed": 8,
+    "Head": 150,
+    "Body": 100,
+    "Legs": 100
+  },
+  {
+    "id": 1,
+    "Name": "Tech1",
+    "HP": 100,
+    "Attack": 50,
+    "Break": 25,
+    "Defence": 30,
+    "Speed": 8,
+    "Head": 100,
+    "Body": 150,
+    "Legs": 100
+  },
+  {
+    "id": 2,
+    "Name": "Speed1",
+    "HP": 100,
+    "Attack": 50,
+    "Break": 20,
+    "Defence": 30,
+    "Speed": 10,
+    "Head": 100,
+    "Body": 100,
+    "Legs": 150
+  }
 ]
