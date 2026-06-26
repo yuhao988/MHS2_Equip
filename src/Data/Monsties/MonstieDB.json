@@ -2,6 +2,8 @@
   {
     "id": 0,
     "Name": "Power1",
+    "Type": "Brute",
+    "Element": "Normal",
     "HP": 200,
     "Attack": 60,
     "Break": 20,
@@ -14,6 +16,8 @@
   {
     "id": 1,
     "Name": "Tech1",
+    "Type": "Skillful",
+    "Element": "Normal",
     "HP": 200,
     "Attack": 50,
     "Break": 25,
@@ -26,6 +30,8 @@
   {
     "id": 2,
     "Name": "Speed1",
+    "Type": "Agile",
+    "Element": "Normal",
     "HP": 200,
     "Attack": 50,
     "Break": 20,

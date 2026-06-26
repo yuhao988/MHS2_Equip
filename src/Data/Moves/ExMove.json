@@ -1,0 +1,12 @@
+[{
+    "id": 0,
+    "Name": "Guard1",
+    "Type": "Guard",
+    "Effect": null
+  },
+{
+    "id": 1,
+    "Name": "Recover",
+    "Type": "Recovery",
+    "Effect": null
+  }]

@@ -6,8 +6,8 @@ import "./App.css";
 
 function Start() {
   const [isModal, setIsModal] = useState(false);
-  const [yourMon, setYourMon] = useState("");
-  const [oppoMon, setOppoMon] = useState("");
+  const [yourMon, setYourMon] = useState(null);
+  const [oppoMon, setOppoMon] = useState(null);
   const monstieNames = MonstieInfo.map((monstie) => monstie.Name);
 
   const openModal = () => {
@@ -17,6 +17,11 @@ function Start() {
   };
   const closeModal = () => {
     setIsModal(false);
+  };
+
+  // Helper function to find monstie object by name
+  const findMonstieByName = (name) => {
+    return MonstieInfo.find(monstie => monstie.Name === name);
   };
 
   return (
@@ -38,8 +43,11 @@ function Start() {
             <label htmlFor="yourMonstie">Your Monstie: </label>
             <select
               id="yourMonstie"
-              value={yourMon}
-              onChange={(e) => setYourMon(e.target.value)}
+              value={yourMon ? yourMon.Name : ""}
+              onChange={(e) => {
+                const selectedMonstie = findMonstieByName(e.target.value);
+                setYourMon(selectedMonstie);
+              }}
             >
               <option value="">Select a monstie...</option>
               {monstieNames.map((name, index) => (
@@ -48,7 +56,7 @@ function Start() {
                 </option>
               ))}
             </select>
-            <p>Selected: {yourMon || "None"}</p>
+            <p>Selected: {yourMon ? yourMon.Name : "None"}</p>
           </div>
 
           <div
@@ -58,8 +66,11 @@ function Start() {
             <label htmlFor="oppoMonstie">Your Opponent's Monstie: </label>
             <select
               id="oppoMonstie"
-              value={oppoMon}
-              onChange={(e) => setOppoMon(e.target.value)}
+              value={oppoMon ? oppoMon.Name : ""}
+              onChange={(e) => {
+                const selectedMonstie = findMonstieByName(e.target.value);
+                setOppoMon(selectedMonstie);
+              }}
             >
               <option value="">Select a monstie...</option>
               {monstieNames.map((name, index) => (
@@ -68,11 +79,11 @@ function Start() {
                 </option>
               ))}
             </select>
-            <p>Selected: {oppoMon || "None"}</p>
+            <p>Selected: {oppoMon ? oppoMon.Name : "None"}</p>
           </div>
         </div>
-        <button onClick={() => openModal()}>Start Battle</button>
-        <BattleSim isOpen={isModal} onClose={closeModal} />
+        <button onClick={() => openModal()} disabled={!yourMon||!oppoMon}>Start Battle</button>
+        <BattleSim isOpen={isModal} onClose={closeModal} youMon={yourMon} opMon={oppoMon} />
         <Link to="/">Back</Link>
       </div>
     </div>
