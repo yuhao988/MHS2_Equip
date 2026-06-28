@@ -21,7 +21,7 @@ function Start() {
 
   // Helper function to find monstie object by name
   const findMonstieByName = (name) => {
-    return MonstieInfo.find(monstie => monstie.Name === name);
+    return MonstieInfo.find((monstie) => monstie.Name === name);
   };
 
   return (
@@ -82,8 +82,15 @@ function Start() {
             <p>Selected: {oppoMon ? oppoMon.Name : "None"}</p>
           </div>
         </div>
-        <button onClick={() => openModal()} disabled={!yourMon||!oppoMon}>Start Battle</button>
-        <BattleSim isOpen={isModal} onClose={closeModal} youMon={yourMon} opMon={oppoMon} />
+        <button onClick={() => openModal()} disabled={!yourMon || !oppoMon}>
+          Start Battle
+        </button>
+        <BattleSim
+          isOpen={isModal && yourMon!=null && oppoMon!=null}
+          onClose={closeModal}
+          youMon={yourMon}
+          opMon={oppoMon}
+        />
         <Link to="/">Back</Link>
       </div>
     </div>

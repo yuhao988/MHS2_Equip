@@ -4,9 +4,10 @@ import Modal from "react-modal";
 import "./App.css";
 
 // Reusable HealthBar component
-function HealthBar({ currentHP, maxHP, label }) {
+function HealthBar({ currentHP, maxHP, widthMode }) {
   const hpPercentage = maxHP > 0 ? (currentHP / maxHP) * 100 : 0;
-  
+  console.log("Cur:" + currentHP);
+  console.log("Max:" + maxHP);
   const getHealthBarColor = (percentage) => {
     if (percentage > 60) return "#4CAF50";
     if (percentage > 30) return "#FFA500";
@@ -16,27 +17,48 @@ function HealthBar({ currentHP, maxHP, label }) {
   return (
     <div style={{ marginTop: "10px", marginBottom: "15px" }}>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <span>{label}: {currentHP} / {maxHP}</span>
-        <span>{Math.round(hpPercentage)}%</span>
-      </div>
-      <div
-        style={{
-          width: "20vw",
-          height: "20px",
-          backgroundColor: "#e0e0e0",
-          borderRadius: "10px",
-          overflow: "hidden",
-          border: "1px solid #ccc",
-        }}
-      >
-        <div
-          style={{
-            width: `${hpPercentage}%`,
-            height: "100%",
-            backgroundColor: getHealthBarColor(hpPercentage),
-            transition: "width 0.3s ease-in-out",
-          }}
-        />
+        {widthMode == 1 ? (
+          <div
+            style={{
+              width: "30vw",
+              height: "20px",
+              backgroundColor: "#e0e0e0",
+              borderRadius: "10px",
+              overflow: "hidden",
+              border: "1px solid #ccc",
+            }}
+          >
+            {" "}
+            <div
+              style={{
+                width: `${hpPercentage}%`,
+                height: "100%",
+                backgroundColor: getHealthBarColor(hpPercentage),
+                transition: "width 0.3s ease-in-out",
+              }}
+            />
+          </div>
+        ) : (
+          <div
+            style={{
+              width: "15vw",
+              height: "20px",
+              backgroundColor: "#e0e0e0",
+              borderRadius: "10px",
+              overflow: "hidden",
+              border: "1px solid #ccc",
+            }}
+          >
+            <div
+              style={{
+                width: `${hpPercentage}%`,
+                height: "100%",
+                backgroundColor: getHealthBarColor(hpPercentage),
+                transition: "width 0.3s ease-in-out",
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
@@ -57,9 +79,13 @@ function BattleSim(prop) {
   const handleCloseModal = () => {
     onClose();
   };
+  const handleAttack = () => {
+    setCurHPYou(Math.max(curHPYou - 5, 0));
+    setCurHPOp(Math.max(curHPOp - 5, 0));
+  };
 
   // Helper function to render monster stats
-  const renderMonsterStats = (monster, label) => {
+  const renderMonsterStats = (monster, curHP, curHd, curBdy, curLg, label) => {
     if (!monster) {
       return (
         <div
@@ -87,13 +113,26 @@ function BattleSim(prop) {
           width: "40vw",
         }}
       >
-        <label>
+        <label style={{ alignItems: "centre" }}>
           {label}: {monster.Name}
         </label>
-         <p>HP: {monster.HP}</p>{/*Insert a bar display here} */}
-        <p>Head: {monster.Head}</p>
-        <p>Body: {monster.Body}</p>
-        <p>Legs: {monster.Legs}</p>
+        <div>
+          HP: {curHP}/{monster.HP}
+          <HealthBar currentHP={curHP} maxHP={monster.HP} widthMode={1} />
+        </div>
+
+        <div>
+          Head:{curHd}/{monster.Head}
+          <HealthBar currentHP={curHd} maxHP={monster.Head} widthMode={2} />
+        </div>
+        <div>
+          Body: {curBdy}/{monster.Body}
+          <HealthBar currentHP={curBdy} maxHP={monster.Body} widthMode={2} />
+        </div>
+        <div>
+          Legs: {curLg}/{monster.Legs}
+          <HealthBar currentHP={curLg} maxHP={monster.Legs} widthMode={2} />
+        </div>
       </div>
     );
   };
@@ -110,19 +149,26 @@ function BattleSim(prop) {
         className="selection-container"
         style={{ display: "flex", gap: "40px", justifyContent: "center" }}
       >
-        <div
-          className="selection-box"
-          style={{
-            border: "2px solid black",
-            padding: "5px ",
-            marginRight: "50px",
-            width: "40vw",
-          }}
-        >
-          {renderMonsterStats(youMon, "You")}
-          {renderMonsterStats(opMon, "Opponent")}
-        </div>
+        {renderMonsterStats(
+          youMon,
+          curHPYou,
+          curHdYou,
+          curBdyYou,
+          curLgsYou,
+          "You",
+        )}
+        {renderMonsterStats(
+          opMon,
+          curHPOp,
+          curHdOp,
+          curBdyOp,
+          curLgsOp,
+          "Opponent",
+        )}
       </div>
+      <button onClick={handleAttack} style={{ marginTop: "50px" }}>
+        Attack!
+      </button>
       <button onClick={handleCloseModal} style={{ marginTop: "50px" }}>
         Close
       </button>
