@@ -1,13 +1,13 @@
 //import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Modal from "react-modal";
+//import AttackList from "./Data/Moves/AttacksDB.json";
 import "./App.css";
 
 // Reusable HealthBar component
 function HealthBar({ currentHP, maxHP, widthMode }) {
   const hpPercentage = maxHP > 0 ? (currentHP / maxHP) * 100 : 0;
-  console.log("Cur:" + currentHP);
-  console.log("Max:" + maxHP);
+
   const getHealthBarColor = (percentage) => {
     if (percentage > 60) return "#4CAF50";
     if (percentage > 30) return "#FFA500";
@@ -17,7 +17,7 @@ function HealthBar({ currentHP, maxHP, widthMode }) {
   return (
     <div style={{ marginTop: "10px", marginBottom: "15px" }}>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
-        {widthMode == 1 ? (
+        {widthMode === 1 ? (
           <div
             style={{
               width: "30vw",
@@ -65,7 +65,7 @@ function HealthBar({ currentHP, maxHP, widthMode }) {
 }
 
 function BattleSim(prop) {
-  const { isOpen, onClose, youMon, opMon } = prop;
+  const { isOpen, onClose, youMon, youAttacks, opMon } = prop;
 
   const [curHPYou, setCurHPYou] = useState(youMon ? youMon.HP : 0);
   const [curHdYou, setCurHdYou] = useState(youMon ? youMon.Head : 0);
@@ -75,6 +75,21 @@ function BattleSim(prop) {
   const [curHdOp, setCurHdOp] = useState(opMon ? opMon.Head : 0);
   const [curBdyOp, setCurBdyOp] = useState(opMon ? opMon.Body : 0);
   const [curLgsOp, setCurLgsOp] = useState(opMon ? opMon.Legs : 0);
+  const [attackUsed, setAttackUsed] = useState(null);
+
+  // Reset state when modal opens with new monsters
+  useEffect(() => {
+    if (isOpen) {
+      setCurHPYou(youMon ? youMon.HP : 0);
+      setCurHdYou(youMon ? youMon.Head : 0);
+      setCurBdyYou(youMon ? youMon.Body : 0);
+      setCurLgsYou(youMon ? youMon.Legs : 0);
+      setCurHPOp(opMon ? opMon.HP : 0);
+      setCurHdOp(opMon ? opMon.Head : 0);
+      setCurBdyOp(opMon ? opMon.Body : 0);
+      setCurLgsOp(opMon ? opMon.Legs : 0);
+    }
+  }, [isOpen, youMon, opMon]); // Re-run when these dependencies change
 
   const handleCloseModal = () => {
     onClose();
@@ -82,6 +97,17 @@ function BattleSim(prop) {
   const handleAttack = () => {
     setCurHPYou(Math.max(curHPYou - 5, 0));
     setCurHPOp(Math.max(curHPOp - 5, 0));
+  };
+
+  const resetSim = () => {
+    setCurHPYou(youMon.HP);
+    setCurHdYou(youMon.Head);
+    setCurBdyYou(youMon.Body);
+    setCurLgsYou(youMon.Legs);
+    setCurHPOp(opMon.HP);
+    setCurHdOp(opMon.Head);
+    setCurBdyOp(opMon.Body);
+    setCurLgsOp(opMon.Legs);
   };
 
   // Helper function to render monster stats
@@ -133,6 +159,27 @@ function BattleSim(prop) {
           Legs: {curLg}/{monster.Legs}
           <HealthBar currentHP={curLg} maxHP={monster.Legs} widthMode={2} />
         </div>
+        <select
+          id="yourMove"
+          value={attackUsed ? attackUsed.Name : ""}
+          onChange={(e) => {
+            const selectedAttack = youAttacks.find(
+              (attack) => attack !== null && attack.Name === e.target.value,
+            );
+            setAttackUsed(selectedAttack || null);
+          }}
+          style={{ marginTop: "10px", width: "100%" }}
+        >
+          <option value="">Select an attack</option>
+          {youAttacks.map(
+            (attack, index) =>
+              attack !== null && (
+                <option key={index} value={attack.Name}>
+                  {attack.Name}
+                </option>
+              ),
+          )}
+        </select>
       </div>
     );
   };
@@ -168,6 +215,9 @@ function BattleSim(prop) {
       </div>
       <button onClick={handleAttack} style={{ marginTop: "50px" }}>
         Attack!
+      </button>
+      <button onClick={resetSim} style={{ marginTop: "50px" }}>
+        Reset
       </button>
       <button onClick={handleCloseModal} style={{ marginTop: "50px" }}>
         Close
