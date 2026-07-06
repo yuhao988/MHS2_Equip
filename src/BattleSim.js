@@ -65,7 +65,7 @@ function HealthBar({ currentHP, maxHP, widthMode }) {
 }
 
 function BattleSim(prop) {
-  const { isOpen, onClose, youMon, youAttacks, opMon } = prop;
+  const { isOpen, onClose, youMon, youAttacks, opMon, opAttacks } = prop;
 
   const [curHPYou, setCurHPYou] = useState(youMon ? youMon.HP : 0);
   const [curHdYou, setCurHdYou] = useState(youMon ? youMon.Head : 0);
@@ -76,7 +76,7 @@ function BattleSim(prop) {
   const [curBdyOp, setCurBdyOp] = useState(opMon ? opMon.Body : 0);
   const [curLgsOp, setCurLgsOp] = useState(opMon ? opMon.Legs : 0);
   const [attackUsed, setAttackUsed] = useState(null);
-
+  const [attackUsedOp, setAttackUsedOp] = useState(null);
   // Reset state when modal opens with new monsters
   useEffect(() => {
     if (isOpen) {
@@ -95,6 +95,9 @@ function BattleSim(prop) {
     onClose();
   };
   const handleAttack = () => {
+    if(!attackUsed || !attackUsedOp || !youMon || !opMon){
+      return; // Exit if no attack is selected or monsters are not defined
+    }
     setCurHPYou(Math.max(curHPYou - 5, 0));
     setCurHPOp(Math.max(curHPOp - 5, 0));
   };
@@ -159,27 +162,52 @@ function BattleSim(prop) {
           Legs: {curLg}/{monster.Legs}
           <HealthBar currentHP={curLg} maxHP={monster.Legs} widthMode={2} />
         </div>
-        <select
-          id="yourMove"
-          value={attackUsed ? attackUsed.Name : ""}
-          onChange={(e) => {
-            const selectedAttack = youAttacks.find(
-              (attack) => attack !== null && attack.Name === e.target.value,
-            );
-            setAttackUsed(selectedAttack || null);
-          }}
-          style={{ marginTop: "10px", width: "100%" }}
-        >
-          <option value="">Select an attack</option>
-          {youAttacks.map(
-            (attack, index) =>
-              attack !== null && (
-                <option key={index} value={attack.Name}>
-                  {attack.Name}
-                </option>
-              ),
-          )}
-        </select>
+        {label === "You" && (
+          <select
+            id="yourMove"
+            value={attackUsed ? attackUsed.Name : ""}
+            onChange={(e) => {
+              const selectedAttack = youAttacks.find(
+                (attack) => attack !== null && attack.Name === e.target.value,
+              );
+              setAttackUsed(selectedAttack || null);
+            }}
+            style={{ marginTop: "10px", width: "100%" }}
+          >
+            <option value="">Select an attack</option>
+            {youAttacks.map(
+              (attack, index) =>
+                attack !== null && (
+                  <option key={index} value={attack.Name}>
+                    {attack.Name}
+                  </option>
+                ),
+            )}
+          </select>
+        )}
+        {label === "Opponent" && (
+          <select
+            id="oppoMove"
+            value={attackUsedOp ? attackUsedOp.Name : ""}
+            onChange={(e) => {
+              const selectedAttack = opAttacks.find(
+                (attack) => attack !== null && attack.Name === e.target.value,
+              );
+              setAttackUsedOp(selectedAttack || null);
+            }}
+            style={{ marginTop: "10px", width: "100%" }}
+          >
+            <option value="">Select an attack</option>
+            {opAttacks.map(
+              (attack, index) =>
+                attack !== null && (
+                  <option key={index} value={attack.Name}>
+                    {attack.Name}
+                  </option>
+                ),
+            )}
+          </select>
+        )}
       </div>
     );
   };

@@ -13,6 +13,7 @@ function Start() {
   const [yourMon, setYourMon] = useState(null);
   const [oppoMon, setOppoMon] = useState(null);
   const [yourMonAttack, setYourMonAttack] = useState([null, null, null, null]);
+  const [oppoMonAttack, setOppoMonAttack] = useState([null, null, null, null]);
   const monstieNames = MonstieInfo.map((monstie) => monstie.Name);
 
   const openModal = () => {
@@ -36,7 +37,7 @@ function Start() {
   };
 
   // Helper function to check if an attack is valid
-  const isAttackValid = (attackName, attackType, currentSlotIndex) => {
+  const isAttackValidYou = (attackName, attackType, currentSlotIndex) => {
     //Check if attack is used before
     const isSameAtk = yourMonAttack.some(
       (attack, index) =>
@@ -54,17 +55,47 @@ function Start() {
 
     return !isSameAtk && !isUsedType;
   };
-  const getValidatedAttackNames = (currentSlotIndex) => {
-    const currentAttack = yourMonAttack[currentSlotIndex];
+  const isAttackValidOp = (attackName, attackType, currentSlotIndex) => {
+    //Check if attack is used before
+    const isSameAtk = oppoMonAttack.some(
+      (attack, index) =>
+        index !== currentSlotIndex &&
+        attack !== null &&
+        attack.Name === attackName,
+    );
+    //Check if same type has been occupied
+    const isUsedType = oppoMonAttack.some(
+      (attack, index) =>
+        index !== currentSlotIndex &&
+        attack !== null &&
+        attack.Type === attackType,
+    );
 
-    return AttackList.filter((attack) => {
-      // If this slot already has this attack, allow it (so it stays selected)
-      if (currentAttack !== null && attack.Name === currentAttack.Name) {
-        return true;
-      }
-      // Only include attacks that pass validation
-      return isAttackValid(attack.Name, attack.Type, currentSlotIndex);
-    }).map((attack) => attack.Name);
+    return !isSameAtk && !isUsedType;
+  };
+
+  const getValidatedAttackNames = (currentSlotIndex, isYou) => {
+    if (isYou) {
+      const currentAttack = yourMonAttack[currentSlotIndex];
+      return AttackList.filter((attack) => {
+        // If this slot already has this attack, allow it (so it stays selected)
+        if (currentAttack !== null && attack.Name === currentAttack.Name) {
+          return true;
+        }
+        // Only include attacks that pass validation
+        return isAttackValidYou(attack.Name, attack.Type, currentSlotIndex);
+      }).map((attack) => attack.Name);
+    } else {
+      const currentAttack = oppoMonAttack[currentSlotIndex];
+      return AttackList.filter((attack) => {
+        // If this slot already has this attack, allow it (so it stays selected)
+        if (currentAttack !== null && attack.Name === currentAttack.Name) {
+          return true;
+        }
+        // Only include attacks that pass validation
+        return isAttackValidOp(attack.Name, attack.Type, currentSlotIndex);
+      }).map((attack) => attack.Name);
+    }
   };
 
   // Helper function to find attack object by name (only returns valid attacks)
@@ -72,7 +103,7 @@ function Start() {
     const attack = AttackList.find((attack) => attack.Name === name);
 
     // If attack exists and is valid for the current slot, return it
-    // if (attack && isAttackValid(attack.Name, attack.Type, currentSlotIndex)) {
+    // if (attack && isAttackValidYou(attack.Name, attack.Type, currentSlotIndex)) {
 
     // }
     return attack;
@@ -115,7 +146,10 @@ function Start() {
             <p>Select Attacks:</p>
             {[0, 1, 2, 3].map((slotIndex) => {
               const currentAttack = yourMonAttack[slotIndex];
-              const validatedAttackNames = getValidatedAttackNames(slotIndex);
+              const validatedAttackNames = getValidatedAttackNames(
+                slotIndex,
+                true,
+              );
 
               return (
                 <div key={slotIndex} style={{ marginTop: "3px" }}>
@@ -141,20 +175,23 @@ function Start() {
                       </option>
                     ))}
                   </select>
-                  
                 </div>
               );
             })}
-            <div><p>Selected Attacks:</p>
-            <ul>
-              {yourMonAttack.filter((a) => a !== null).map((attack, index) => (
-                <li key={index}>
-                  <button onClick={() => openStatModal(attack)}>{attack.Name}</button>
-                </li>
-              ))}
-            </ul>
+            <div>
+              <p>Selected Attacks:</p>
+              <ul>
+                {yourMonAttack
+                  .filter((a) => a !== null)
+                  .map((attack, index) => (
+                    <li key={index}>
+                      <button onClick={() => openStatModal(attack)}>
+                        {attack.Name}
+                      </button>
+                    </li>
+                  ))}
+              </ul>
             </div>
-            
           </div>
 
           <div
@@ -178,6 +215,55 @@ function Start() {
               ))}
             </select>
             <p>Selected: {oppoMon ? oppoMon.Name : "None"}</p>
+            <p>Select Attacks:</p>
+            {[0, 1, 2, 3].map((slotIndex) => {
+              const currentAttack = oppoMonAttack[slotIndex];
+              const validatedAttackNames = getValidatedAttackNames(
+                slotIndex,
+                false,
+              );
+
+              return (
+                <div key={slotIndex} style={{ marginTop: "3px" }}>
+                  <label style={{ fontSize: "14px" }}>
+                    Slot {slotIndex + 1}:{" "}
+                  </label>
+                  <select
+                    value={currentAttack ? currentAttack.Name : ""}
+                    onChange={(e) => {
+                      const selectedAttack = e.target.value
+                        ? findAttackByName(e.target.value)
+                        : null;
+                      const newAttacks = [...oppoMonAttack];
+                      newAttacks[slotIndex] = selectedAttack;
+                      setOppoMonAttack(newAttacks);
+                    }}
+                    style={{ width: "95%" }}
+                  >
+                    <option value="">None</option>
+                    {validatedAttackNames.map((name) => (
+                      <option key={name} value={name}>
+                        {name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              );
+            })}
+            <div>
+              <p>Selected Attacks:</p>
+              <ul>
+                {oppoMonAttack
+                  .filter((a) => a !== null)
+                  .map((attack, index) => (
+                    <li key={index}>
+                      <button onClick={() => openStatModal(attack)}>
+                        {attack.Name}
+                      </button>
+                    </li>
+                  ))}
+              </ul>
+            </div>
           </div>
         </div>
         <button onClick={() => openModal()} disabled={!yourMon || !oppoMon}>
@@ -187,8 +273,9 @@ function Start() {
           isOpen={isModal && yourMon != null && oppoMon != null}
           onClose={closeModal}
           youMon={yourMon}
-          youAttacks ={yourMonAttack}
+          youAttacks={yourMonAttack}
           opMon={oppoMon}
+          opAttacks={oppoMonAttack}
         />
         <MoveStats
           isOpen={isStatModal && selAttack != null}
