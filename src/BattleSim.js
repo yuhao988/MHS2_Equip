@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import Modal from "react-modal";
 //import AttackList from "./Data/Moves/AttacksDB.json";
+import { healthDamage, partDamage } from "./Calculations/Calculations";
 import "./App.css";
 
 // Reusable HealthBar component
@@ -95,11 +96,49 @@ function BattleSim(prop) {
     onClose();
   };
   const handleAttack = () => {
-    if(!attackUsed || !attackUsedOp || !youMon || !opMon){
+    if (!attackUsed || !attackUsedOp || !youMon || !opMon) {
       return; // Exit if no attack is selected or monsters are not defined
     }
-    setCurHPYou(Math.max(curHPYou - 5, 0));
-    setCurHPOp(Math.max(curHPOp - 5, 0));
+    let [youHPAfter, opHPAfter] = healthDamage(
+      attackUsed,
+      attackUsedOp,
+      youMon,
+      opMon,
+      curHPYou,
+      curHPOp,
+    );
+    setCurHPYou(youHPAfter);
+    setCurHPOp(opHPAfter);
+    let [youHdAfter, opHdAfter] = partDamage(
+      attackUsed,
+      attackUsedOp,
+      youMon,
+      opMon,
+      curHdYou,
+      curHdOp,
+    );
+    let [youBdyAfter, opBdyAfter] = partDamage(
+      attackUsed,
+      attackUsedOp,
+      youMon,
+      opMon,
+      curBdyYou,
+      curBdyOp,
+    );
+    let [youLgsAfter, opLgsAfter] = partDamage(
+      attackUsed,
+      attackUsedOp,
+      youMon,
+      opMon,
+      curLgsYou,
+      curLgsOp,
+    );
+    setCurHdYou(youHdAfter);
+    setCurHdOp(opHdAfter);
+    setCurBdyYou(youBdyAfter);
+    setCurBdyOp(opBdyAfter);
+    setCurLgsYou(youLgsAfter);
+    setCurLgsOp(opLgsAfter);
   };
 
   const resetSim = () => {
@@ -139,7 +178,7 @@ function BattleSim(prop) {
           border: "2px solid black",
           padding: "5px ",
           marginRight: "50px",
-          width: "40vw",
+          width: "35vw",
         }}
       >
         <label style={{ alignItems: "centre" }}>
