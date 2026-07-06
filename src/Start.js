@@ -191,7 +191,7 @@ function Start() {
           opMon={oppoMon}
         />
         <MoveStats
-          isOpen={isStatModal}
+          isOpen={isStatModal && selAttack != null}
           onClose={closeStatModal}
           attack={selAttack}
         />
