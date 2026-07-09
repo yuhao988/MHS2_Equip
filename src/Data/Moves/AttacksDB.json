@@ -14,7 +14,7 @@
   {
     "id": 1,
     "Name": "Tail1",
-    "Type": "Body",
+    "Type": "Tail",
     "Element": "Normal",
     "Strength": 50,
     "Break": 10,

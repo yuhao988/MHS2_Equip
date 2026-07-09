@@ -116,6 +116,8 @@ function BattleSim(prop) {
       opMon,
       curHdYou,
       curHdOp,
+      "Head",
+      "Head"
     );
     let [youBdyAfter, opBdyAfter] = partDamage(
       attackUsed,
@@ -124,6 +126,8 @@ function BattleSim(prop) {
       opMon,
       curBdyYou,
       curBdyOp,
+      "Body",
+      "Body"
     );
     let [youLgsAfter, opLgsAfter] = partDamage(
       attackUsed,
@@ -132,6 +136,8 @@ function BattleSim(prop) {
       opMon,
       curLgsYou,
       curLgsOp,
+      "Legs",
+      "Legs"
     );
     setCurHdYou(youHdAfter);
     setCurHdOp(opHdAfter);
