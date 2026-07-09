@@ -41,7 +41,7 @@
     "Element": "Normal",
     "Strength": 50,
     "Break": 10,
-    "Cost": 10,
+    "Cost": 5,
     "Hit": 100,
     "Crit": 5,
     "Effect": null
