@@ -57,6 +57,42 @@
     "Hit": 100,
     "Crit": 5,
     "Effect": null
+  },
+  {
+    "id": 5,
+    "Name": "Weak Tackle",
+    "Type": "Head",
+    "Element": "None",
+    "Strength": 30,
+    "Break": 0,
+    "Cost": 0,
+    "Hit": 80,
+    "Crit": 0,
+    "Effect": "Cannot break parts. Cannot crit."
+  },
+  {
+    "id": 6,
+    "Name": "Weak Slam",
+    "Type": "Body",
+    "Element": "None",
+    "Strength": 30,
+    "Break": 0,
+    "Cost": 0,
+    "Hit": 80,
+    "Crit": 0,
+    "Effect": "Cannot break parts. Cannot crit."
+  },
+  {
+    "id": 7,
+    "Name": "Weak Strike",
+    "Type": "Legs",
+    "Element": "None",
+    "Strength": 30,
+    "Break": 0,
+    "Cost": 0,
+    "Hit": 80,
+    "Crit": 0,
+    "Effect": "Cannot break parts. Cannot crit."
   }
   
 ]

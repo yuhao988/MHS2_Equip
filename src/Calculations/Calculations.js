@@ -1,4 +1,5 @@
-const tempLvl = 50;
+import AttackList from "../Data/Moves/AttacksDB.json";
+const tempLvl = 99;
 
 //Damage formula for damage to health
 export function healthDamage(
@@ -8,6 +9,8 @@ export function healthDamage(
   opMon,
   youCurHp,
   opCurHP,
+  youDurab,
+  opDurab
 ) {
   const youType = groupAtkType(youMove.Type);
   const opType = groupAtkType(opMove.Type);
@@ -19,7 +22,7 @@ export function healthDamage(
   let multiOp1 = isStabOp ? 1.2 : 1;
   let multiYou2 = 1; //Advantage multiplier
   let multiOp2 = 1;
-  
+
   if (isAdvYou) {
     multiOp2 = 0.5; //Half damage from opponent when you have advantage
     //console.log("You advantage ", youType);
@@ -42,15 +45,14 @@ export function healthDamage(
 
   let resultYou = Math.floor(
     Math.max(
-      (((youMon.Attack / opMon.Defence) * youMove.Strength) / 2 +
-        tempLvl / 10) *
+      (((youMon.Attack / opMon.Defence) * youMove.Strength) / 2 + tempLvl / 5) *
         multiYou1,
       1,
     ) * multiYou2,
   );
   let resultOp = Math.floor(
     Math.max(
-      (((opMon.Attack / youMon.Defence) * opMove.Strength) / 2 + tempLvl / 10) *
+      (((opMon.Attack / youMon.Defence) * opMove.Strength) / 2 + tempLvl / 5) *
         multiOp1,
       1,
     ) * multiOp2,
@@ -71,6 +73,8 @@ export function partDamage(
   opMon,
   youPartHp,
   opPartHp,
+  youDurab,
+  opDurab,
   youPart,
   opPart,
 ) {
@@ -121,22 +125,22 @@ export function partDamage(
 
   if (youType === "Full" || opType === "Full") {
     resultYou += Math.floor(
-      ((opMon.Break + opMove.Break + tempLvl / 15 + addOp1) * multiOp2) / 3,
+      ((opMon.Break + opMove.Break + tempLvl / 7 + addOp1) * multiOp2) / 3,
     );
     //console.log(youPart,"2:",Math.floor((opMon.Break + opMove.Break + tempLvl / 15) / 3));
     resultOp += Math.floor(
-      ((youMon.Break + youMove.Break + tempLvl / 15 + addYou1) * multiYou2) / 3,
+      ((youMon.Break + youMove.Break + tempLvl / 7 + addYou1) * multiYou2) / 3,
     );
   } else {
     if (youType === youPart) {
       resultYou += Math.floor(
-        (opMon.Break + opMove.Break + tempLvl / 15 + addOp1) * multiOp2,
+        (opMon.Break + opMove.Break + tempLvl / 7 + addOp1) * multiOp2,
       );
       //console.log(youPart,"3:",Math.floor(opMon.Break + opMove.Break + tempLvl / 15));
     }
     if (opType === opPart) {
       resultOp += Math.floor(
-        (youMon.Break + youMove.Break + tempLvl / 15 + addYou1) * multiYou2,
+        (youMon.Break + youMove.Break + tempLvl / 7 + addYou1) * multiYou2,
       );
     }
   }
@@ -155,7 +159,17 @@ export function partDamage(
 }
 
 //Check for move type matchup
-function checkAdvantage(youMove, opMove) {
+export function checkAdvantage(youMove, opMove) {
+  if (
+    youMove.id === 5 ||
+    youMove.id === 6 ||
+    youMove.id === 7 ||
+    opMove.id === 5 ||
+    opMove.id === 6 ||
+    opMove.id === 7
+  ) {
+    return [false, false];
+  }
   const youType = groupAtkType(youMove.Type);
   const opType = groupAtkType(opMove.Type);
 
@@ -213,4 +227,27 @@ function groupAtkType(atkType) {
       groupedType = "None";
   }
   return groupedType;
+}
+
+export function validateMove(move, durability){
+  // Check and replace attacks if corresponding part is broken
+    let validatedMove = move;
+    
+    const moveType = groupAtkType(move.Type);
+    
+    // Check your attacks
+    if (moveType === "Head" && durability.Head === 0) {
+      validatedMove = AttackList.find(
+        (attack) => attack.Name === "Weak Tackle",
+      );
+    } else if (moveType === "Body" && durability.Body === 0) {
+      validatedMove = AttackList.find((attack) => attack.Name === "Weak Slam");
+    } else if (moveType === "Legs" && durability.Legs === 0) {
+      validatedMove = AttackList.find(
+        (attack) => attack.Name === "Weak Strike",
+      );
+    }
+
+    return validatedMove;
+
 }

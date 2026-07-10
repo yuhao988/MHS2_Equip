@@ -2,7 +2,12 @@
 import { useState, useEffect } from "react";
 import Modal from "react-modal";
 //import AttackList from "./Data/Moves/AttacksDB.json";
-import { healthDamage, partDamage } from "./Calculations/Calculations";
+import {
+  healthDamage,
+  partDamage,
+  checkAdvantage,
+  validateMove,
+} from "./Calculations/Calculations";
 import "./App.css";
 
 // Reusable HealthBar component
@@ -10,8 +15,8 @@ function HealthBar({ currentHP, maxHP, widthMode }) {
   const hpPercentage = maxHP > 0 ? (currentHP / maxHP) * 100 : 0;
 
   const getHealthBarColor = (percentage) => {
-    if (percentage > 60) return "#4CAF50";
-    if (percentage > 30) return "#FFA500";
+    if (percentage > 50) return "#4CAF50";
+    if (percentage > 25) return "#FFA500";
     return "#FF0000";
   };
 
@@ -78,6 +83,10 @@ function BattleSim(prop) {
   const [curLgsOp, setCurLgsOp] = useState(opMon ? opMon.Legs : 0);
   const [attackUsed, setAttackUsed] = useState(null);
   const [attackUsedOp, setAttackUsedOp] = useState(null);
+
+  // State for battle log
+  const [battleLog, setBattleLog] = useState([]);
+
   // Reset state when modal opens with new monsters
   useEffect(() => {
     if (isOpen) {
@@ -89,16 +98,41 @@ function BattleSim(prop) {
       setCurHdOp(opMon ? opMon.Head : 0);
       setCurBdyOp(opMon ? opMon.Body : 0);
       setCurLgsOp(opMon ? opMon.Legs : 0);
+      setBattleLog([]);
     }
   }, [isOpen, youMon, opMon]); // Re-run when these dependencies change
 
   const handleCloseModal = () => {
     onClose();
   };
+
   const handleAttack = () => {
     if (!attackUsed || !attackUsedOp || !youMon || !opMon) {
       return; // Exit if no attack is selected or monsters are not defined
     }
+
+    // Store previous HP values for logging
+    const prevHPYou = curHPYou;
+    const prevHPOp = curHPOp;
+    const prevHdYou = curHdYou;
+    const prevHdOp = curHdOp;
+    const prevBdyYou = curBdyYou;
+    const prevBdyOp = curBdyOp;
+    const prevLgsYou = curLgsYou;
+    const prevLgsOp = curLgsOp;
+
+    const durabYou ={Head: curHdYou, Body: curBdyYou, Legs: curLgsYou};
+    const durabOp ={Head: curHdOp, Body: curBdyOp, Legs: curLgsOp};
+
+    const finalAttackYou = validateMove(attackUsed, durabYou);
+    const finalAttackOp = validateMove(attackUsedOp, durabOp);
+    setAttackUsed(finalAttackYou);
+    setAttackUsedOp(finalAttackOp);
+    // Check advantage using the final attacks
+    const [isAdvYou, isAdvOp] = checkAdvantage(attackUsed, attackUsedOp);
+
+    ///console.log(`You Advantage: ${isAdvYou}, Opponent Advantage: ${isAdvOp}`);
+
     let [youHPAfter, opHPAfter] = healthDamage(
       attackUsed,
       attackUsedOp,
@@ -106,6 +140,8 @@ function BattleSim(prop) {
       opMon,
       curHPYou,
       curHPOp,
+      durabYou,
+      durabOp
     );
     setCurHPYou(youHPAfter);
     setCurHPOp(opHPAfter);
@@ -116,8 +152,10 @@ function BattleSim(prop) {
       opMon,
       curHdYou,
       curHdOp,
+      durabYou,
+      durabOp,
       "Head",
-      "Head"
+      "Head",
     );
     let [youBdyAfter, opBdyAfter] = partDamage(
       attackUsed,
@@ -126,8 +164,10 @@ function BattleSim(prop) {
       opMon,
       curBdyYou,
       curBdyOp,
+      durabYou,
+      durabOp,
       "Body",
-      "Body"
+      "Body",
     );
     let [youLgsAfter, opLgsAfter] = partDamage(
       attackUsed,
@@ -136,8 +176,10 @@ function BattleSim(prop) {
       opMon,
       curLgsYou,
       curLgsOp,
+      durabYou,
+      durabOp,
       "Legs",
-      "Legs"
+      "Legs",
     );
     setCurHdYou(youHdAfter);
     setCurHdOp(opHdAfter);
@@ -145,6 +187,25 @@ function BattleSim(prop) {
     setCurBdyOp(opBdyAfter);
     setCurLgsYou(youLgsAfter);
     setCurLgsOp(opLgsAfter);
+
+    // Create battle log entry
+    const logEntry = {
+      turn: battleLog.length + 1,
+      youAttack: attackUsed.Name,
+      opAttack: attackUsedOp.Name,
+      isAdvYou,
+      isAdvOp,
+      hpDamageYou: prevHPYou - youHPAfter,
+      hpDamageOp: prevHPOp - opHPAfter,
+      hdDamageYou: prevHdYou - youHdAfter,
+      hdDamageOp: prevHdOp - opHdAfter,
+      bdyDamageYou: prevBdyYou - youBdyAfter,
+      bdyDamageOp: prevBdyOp - opBdyAfter,
+      lgsDamageYou: prevLgsYou - youLgsAfter,
+      lgsDamageOp: prevLgsOp - opLgsAfter,
+    };
+
+    setBattleLog([...battleLog, logEntry]);
   };
 
   const resetSim = () => {
@@ -156,6 +217,7 @@ function BattleSim(prop) {
     setCurHdOp(opMon.Head);
     setCurBdyOp(opMon.Body);
     setCurLgsOp(opMon.Legs);
+    setBattleLog([]);
   };
 
   // Helper function to render monster stats
@@ -286,15 +348,116 @@ function BattleSim(prop) {
           "Opponent",
         )}
       </div>
-      <button onClick={handleAttack} style={{ marginTop: "50px" }}>
-        Attack!
-      </button>
-      <button onClick={resetSim} style={{ marginTop: "50px" }}>
-        Reset
-      </button>
-      <button onClick={handleCloseModal} style={{ marginTop: "50px" }}>
-        Close
-      </button>
+      {/* Battle Log - NEW */}
+      <div
+        style={{
+          marginTop: "20px",
+          maxHeight: "150px",
+          overflowY: "auto",
+          border: "1px solid #ccc",
+          padding: "10px",
+          borderRadius: "5px",
+        }}
+      >
+        <h3>Battle Log</h3>
+        {battleLog.length === 0 ? (
+          <p style={{ color: "#666", fontStyle: "italic" }}>
+            No attacks made yet. Select attacks and press "Attack!"
+          </p>
+        ) : (
+          battleLog.map((log, index) => (
+            <div
+              key={index}
+              style={{
+                marginBottom: "10px",
+                padding: "8px",
+                backgroundColor: "#f5f5f5",
+                borderRadius: "4px",
+              }}
+            >
+              <strong>Turn {log.turn}:</strong>
+              <div style={{ marginTop: "4px" }}>
+                <span style={{ fontWeight: "bold" }}>{youMon.Name}</span> used{" "}
+                <strong>{log.youAttack}</strong>
+                {log.isAdvYou && (
+                  <span style={{ color: "green", marginLeft: "5px" }}>
+                    ✅ ADVANTAGE!
+                  </span>
+                )}
+                {log.isAdvOp && (
+                  <span style={{ color: "red", marginLeft: "5px" }}>
+                    ⚠️ DISADVANTAGE
+                  </span>
+                )}
+                {!log.isAdvYou && !log.isAdvOp && (
+                  <span style={{ color: "#666", marginLeft: "5px" }}>
+                    ↔️ Neutral
+                  </span>
+                )}
+              </div>
+              <div>
+                <span style={{ fontWeight: "bold" }}>{opMon.Name}</span> used{" "}
+                <strong>{log.opAttack}</strong>
+                {log.isAdvOp && (
+                  <span style={{ color: "green", marginLeft: "5px" }}>
+                    ✅ ADVANTAGE!
+                  </span>
+                )}
+                {log.isAdvYou && (
+                  <span style={{ color: "red", marginLeft: "5px" }}>
+                    ⚠️ DISADVANTAGE
+                  </span>
+                )}
+                {!log.isAdvYou && !log.isAdvOp && (
+                  <span style={{ color: "#666", marginLeft: "5px" }}>
+                    ↔️ Neutral
+                  </span>
+                )}
+              </div>
+              <div
+                style={{ fontSize: "12px", color: "#555", marginTop: "4px" }}
+              >
+                <span>
+                  HP Damage: {log.hpDamageYou} to you, {log.hpDamageOp} to
+                  opponent |{" "}
+                </span>
+                <span>
+                  Parts: Head({log.hdDamageYou}/{log.hdDamageOp}) Body(
+                  {log.bdyDamageYou}/{log.bdyDamageOp}) Legs({log.lgsDamageYou}/
+                  {log.lgsDamageOp})
+                </span>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          gap: "10px",
+          justifyContent: "center",
+          marginTop: "10px",
+        }}
+      >
+        {" "}
+        {/* CHANGED: Added flex container */}
+        <button onClick={handleAttack} style={{ marginTop: "10px" }}>
+          {" "}
+          {/* CHANGED: marginTop from 50px to 10px */}
+          Attack!
+        </button>
+        <button onClick={resetSim} style={{ marginTop: "10px" }}>
+          {" "}
+          {/* CHANGED: marginTop from 50px to 10px */}
+          Reset
+        </button>
+        <button onClick={handleCloseModal} style={{ marginTop: "10px" }}>
+          {" "}
+          {/* CHANGED: marginTop from 50px to 10px */}
+          Close
+        </button>
+      </div>
     </Modal>
   );
 }
