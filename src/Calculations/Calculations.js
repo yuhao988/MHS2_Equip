@@ -10,7 +10,7 @@ export function healthDamage(
   youCurHp,
   opCurHP,
   youDurab,
-  opDurab
+  opDurab,
 ) {
   const youType = groupAtkType(youMove.Type);
   const opType = groupAtkType(opMove.Type);
@@ -144,12 +144,17 @@ export function partDamage(
       );
     }
   }
-  if (isAdvYou) {
+  if (youPartHp === 0) {
+    youEndHP = 0;
+  } else if (isAdvYou) {
     youEndHP = Math.max(youPartHp - resultYou, 1);
   } else {
     youEndHP = Math.max(youPartHp - resultYou, 0);
   }
-  if (isAdvOp) {
+  
+  if (opPartHp === 0) {
+    opEndHP = 0;
+  } else if (isAdvOp) {
     opEndHP = Math.max(opPartHp - resultOp, 1);
   } else {
     opEndHP = Math.max(opPartHp - resultOp, 0);
@@ -229,25 +234,20 @@ function groupAtkType(atkType) {
   return groupedType;
 }
 
-export function validateMove(move, durability){
+export function validateMove(move, durability) {
   // Check and replace attacks if corresponding part is broken
-    let validatedMove = move;
-    
-    const moveType = groupAtkType(move.Type);
-    
-    // Check your attacks
-    if (moveType === "Head" && durability.Head === 0) {
-      validatedMove = AttackList.find(
-        (attack) => attack.Name === "Weak Tackle",
-      );
-    } else if (moveType === "Body" && durability.Body === 0) {
-      validatedMove = AttackList.find((attack) => attack.Name === "Weak Slam");
-    } else if (moveType === "Legs" && durability.Legs === 0) {
-      validatedMove = AttackList.find(
-        (attack) => attack.Name === "Weak Strike",
-      );
-    }
+  let validatedMove = move;
 
-    return validatedMove;
+  const moveType = groupAtkType(move.Type);
 
+  // Check your attacks
+  if (moveType === "Head" && durability.Head === 0) {
+    validatedMove = AttackList.find((attack) => attack.Name === "Weak Tackle");
+  } else if (moveType === "Body" && durability.Body === 0) {
+    validatedMove = AttackList.find((attack) => attack.Name === "Weak Slam");
+  } else if (moveType === "Legs" && durability.Legs === 0) {
+    validatedMove = AttackList.find((attack) => attack.Name === "Weak Strike");
+  }
+
+  return validatedMove;
 }

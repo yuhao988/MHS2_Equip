@@ -442,7 +442,7 @@ function BattleSim(prop) {
       >
         {" "}
         {/* CHANGED: Added flex container */}
-        <button onClick={handleAttack} style={{ marginTop: "10px" }}>
+        <button onClick={handleAttack} style={{ marginTop: "10px" }} disabled={curHPYou === 0 || curHPOp === 0}>{" "}
           {" "}
           {/* CHANGED: marginTop from 50px to 10px */}
           Attack!
