@@ -4,6 +4,7 @@ import BattleSim from "./BattleSim";
 import MoveStats from "./MoveStats";
 import MonstieInfo from "./Data/Monsties/MonstieDB.json";
 import AttackList from "./Data/Moves/AttacksDB.json";
+import {groupAtkType} from "./Calculations/Calculations.js";
 import "./App.css";
 
 function Start() {
@@ -15,6 +16,9 @@ function Start() {
   const [yourMonAttack, setYourMonAttack] = useState([null, null, null, null]);
   const [oppoMonAttack, setOppoMonAttack] = useState([null, null, null, null]);
   const monstieNames = MonstieInfo.map((monstie) => monstie.Name);
+  const attackList = AttackList
+  .filter(attack => attack.Name !== "Weak Tackle" && attack.Name !== "Weak Slam" && attack.Name !== "Weak Strike");
+  
 
   const openModal = () => {
     setIsModal(true);
@@ -50,7 +54,7 @@ function Start() {
       (attack, index) =>
         index !== currentSlotIndex &&
         attack !== null &&
-        attack.Type === attackType,
+        groupAtkType(attack.Type) === groupAtkType(attackType),
     );
 
     return !isSameAtk && !isUsedType;
@@ -68,7 +72,7 @@ function Start() {
       (attack, index) =>
         index !== currentSlotIndex &&
         attack !== null &&
-        attack.Type === attackType,
+        groupAtkType(attack.Type) === groupAtkType(attackType),
     );
 
     return !isSameAtk && !isUsedType;
@@ -77,7 +81,7 @@ function Start() {
   const getValidatedAttackNames = (currentSlotIndex, isYou) => {
     if (isYou) {
       const currentAttack = yourMonAttack[currentSlotIndex];
-      return AttackList.filter((attack) => {
+      return attackList.filter((attack) => {
         // If this slot already has this attack, allow it (so it stays selected)
         if (currentAttack !== null && attack.Name === currentAttack.Name) {
           return true;
@@ -87,7 +91,7 @@ function Start() {
       }).map((attack) => attack.Name);
     } else {
       const currentAttack = oppoMonAttack[currentSlotIndex];
-      return AttackList.filter((attack) => {
+      return attackList.filter((attack) => {
         // If this slot already has this attack, allow it (so it stays selected)
         if (currentAttack !== null && attack.Name === currentAttack.Name) {
           return true;
@@ -100,7 +104,7 @@ function Start() {
 
   // Helper function to find attack object by name (only returns valid attacks)
   const findAttackByName = (name) => {
-    const attack = AttackList.find((attack) => attack.Name === name);
+    const attack = attackList.find((attack) => attack.Name === name);
 
     // If attack exists and is valid for the current slot, return it
     // if (attack && isAttackValidYou(attack.Name, attack.Type, currentSlotIndex)) {

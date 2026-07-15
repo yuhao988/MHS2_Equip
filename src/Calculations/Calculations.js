@@ -11,6 +11,8 @@ export function healthDamage(
   opCurHP,
   youDurab,
   opDurab,
+  youRatio,
+  opRatio,
 ) {
   const youType = groupAtkType(youMove.Type);
   const opType = groupAtkType(opMove.Type);
@@ -22,6 +24,8 @@ export function healthDamage(
   let multiOp1 = isStabOp ? 1.2 : 1;
   let multiYou2 = 1; //Advantage multiplier
   let multiOp2 = 1;
+  let multiYou3 = 1; //Durability multiplier
+  let multiOp3 = 1;
 
   if (isAdvYou) {
     multiOp2 = 0.5; //Half damage from opponent when you have advantage
@@ -48,14 +52,18 @@ export function healthDamage(
       (((youMon.Attack / opMon.Defence) * youMove.Strength) / 2 + tempLvl / 5) *
         multiYou1,
       1,
-    ) * multiYou2,
+    ) *
+      multiYou2 *
+      multiYou3,
   );
   let resultOp = Math.floor(
     Math.max(
       (((opMon.Attack / youMon.Defence) * opMove.Strength) / 2 + tempLvl / 5) *
         multiOp1,
       1,
-    ) * multiOp2,
+    ) *
+      multiOp2 *
+      multiOp3,
   );
 
   const threshold1 = isAdvYou ? 1 : 0;
@@ -77,6 +85,8 @@ export function partDamage(
   opDurab,
   youPart,
   opPart,
+  youRatio,
+  opRatio,
 ) {
   const youType = groupAtkType(youMove.Type);
   const opType = groupAtkType(opMove.Type);
@@ -90,6 +100,8 @@ export function partDamage(
   let addOp1 = 0;
   let multiYou2 = 1;
   let multiOp2 = 1;
+  let multiYou3 = 1;
+  let multiOp3 = 1;
   let youEndHP, opEndHP;
 
   if (isStabYou) {
@@ -125,22 +137,28 @@ export function partDamage(
 
   if (youType === "Full" || opType === "Full") {
     resultYou += Math.floor(
-      ((opMon.Break + opMove.Break + tempLvl / 7 + addOp1) * multiOp2) / 3,
+      (((opMon.Break + opMove.Break + tempLvl / 7) * multiOp3 + addOp1) *
+        multiOp2) /
+        3,
     );
     //console.log(youPart,"2:",Math.floor((opMon.Break + opMove.Break + tempLvl / 15) / 3));
     resultOp += Math.floor(
-      ((youMon.Break + youMove.Break + tempLvl / 7 + addYou1) * multiYou2) / 3,
+      (((youMon.Break + youMove.Break + tempLvl / 7) * multiYou3 + addYou1) *
+        multiYou2) /
+        3,
     );
   } else {
     if (youType === youPart) {
       resultYou += Math.floor(
-        (opMon.Break + opMove.Break + tempLvl / 7 + addOp1) * multiOp2,
+        ((opMon.Break + opMove.Break + tempLvl / 7) * multiOp3 + addOp1) *
+          multiOp2,
       );
       //console.log(youPart,"3:",Math.floor(opMon.Break + opMove.Break + tempLvl / 15));
     }
     if (opType === opPart) {
       resultOp += Math.floor(
-        (youMon.Break + youMove.Break + tempLvl / 7 + addYou1) * multiYou2,
+        ((youMon.Break + youMove.Break + tempLvl / 7) * multiYou3 + addYou1) *
+          multiYou2,
       );
     }
   }
@@ -151,7 +169,7 @@ export function partDamage(
   } else {
     youEndHP = Math.max(youPartHp - resultYou, 0);
   }
-  
+
   if (opPartHp === 0) {
     opEndHP = 0;
   } else if (isAdvOp) {
@@ -201,7 +219,7 @@ function checkSTAB(monstie, move) {
   return isStab;
 }
 
-function groupAtkType(atkType) {
+export function groupAtkType(atkType) {
   let groupedType;
   switch (atkType) {
     case "Head":

@@ -7,6 +7,7 @@ import {
   partDamage,
   checkAdvantage,
   validateMove,
+  groupAtkType,
 } from "./Calculations/Calculations";
 import "./App.css";
 
@@ -102,6 +103,19 @@ function BattleSim(prop) {
     }
   }, [isOpen, youMon, opMon]); // Re-run when these dependencies change
 
+  const costDurRatio = (attack, durability) => {
+    let ratio = 1;
+    const type = groupAtkType(attack.Type);
+    if (type === "Head") {
+      ratio = Math.min(durability[0] / attack.Cost, 1);
+    } else if (type === "Body") {
+      ratio = Math.min(durability[1] / attack.Cost, 1);
+    } else if (type === "Legs") {
+      ratio = Math.min(durability[2] / attack.Cost, 1);
+    }
+    return Math.max(ratio, 0.33);
+  };
+
   const handleCloseModal = () => {
     onClose();
   };
@@ -121,8 +135,8 @@ function BattleSim(prop) {
     const prevLgsYou = curLgsYou;
     const prevLgsOp = curLgsOp;
 
-    const durabYou ={Head: curHdYou, Body: curBdyYou, Legs: curLgsYou};
-    const durabOp ={Head: curHdOp, Body: curBdyOp, Legs: curLgsOp};
+    const durabYou = { Head: curHdYou, Body: curBdyYou, Legs: curLgsYou };
+    const durabOp = { Head: curHdOp, Body: curBdyOp, Legs: curLgsOp };
 
     const finalAttackYou = validateMove(attackUsed, durabYou);
     const finalAttackOp = validateMove(attackUsedOp, durabOp);
@@ -130,7 +144,8 @@ function BattleSim(prop) {
     setAttackUsedOp(finalAttackOp);
     // Check advantage using the final attacks
     const [isAdvYou, isAdvOp] = checkAdvantage(attackUsed, attackUsedOp);
-
+    const ratioYou = costDurRatio(attackUsed, [curHdYou, curBdyYou, curLgsYou]);
+    const ratioOp = costDurRatio(attackUsedOp, [curHdOp, curBdyOp, curLgsOp]);
     ///console.log(`You Advantage: ${isAdvYou}, Opponent Advantage: ${isAdvOp}`);
 
     let [youHPAfter, opHPAfter] = healthDamage(
@@ -141,7 +156,9 @@ function BattleSim(prop) {
       curHPYou,
       curHPOp,
       durabYou,
-      durabOp
+      durabOp,
+      ratioYou,
+      ratioOp,
     );
     setCurHPYou(youHPAfter);
     setCurHPOp(opHPAfter);
@@ -156,6 +173,8 @@ function BattleSim(prop) {
       durabOp,
       "Head",
       "Head",
+      ratioYou,
+      ratioOp,
     );
     let [youBdyAfter, opBdyAfter] = partDamage(
       attackUsed,
@@ -168,6 +187,8 @@ function BattleSim(prop) {
       durabOp,
       "Body",
       "Body",
+      ratioYou,
+      ratioOp,
     );
     let [youLgsAfter, opLgsAfter] = partDamage(
       attackUsed,
@@ -180,6 +201,8 @@ function BattleSim(prop) {
       durabOp,
       "Legs",
       "Legs",
+      ratioYou,
+      ratioOp,
     );
     setCurHdYou(youHdAfter);
     setCurHdOp(opHdAfter);
@@ -442,7 +465,11 @@ function BattleSim(prop) {
       >
         {" "}
         {/* CHANGED: Added flex container */}
-        <button onClick={handleAttack} style={{ marginTop: "10px" }} disabled={curHPYou === 0 || curHPOp === 0}>{" "}
+        <button
+          onClick={handleAttack}
+          style={{ marginTop: "10px" }}
+          disabled={curHPYou === 0 || curHPOp === 0}
+        >
           {" "}
           {/* CHANGED: marginTop from 50px to 10px */}
           Attack!
