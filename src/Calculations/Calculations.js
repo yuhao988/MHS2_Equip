@@ -94,6 +94,7 @@ export function partDamage(
   const isStabYou = checkSTAB(youMon, youMove);
   const isStabOp = checkSTAB(opMon, opMove);
 
+  //Multipliers
   let resultYou = 0;
   let resultOp = 0;
   let addYou1 = 0;
@@ -104,12 +105,14 @@ export function partDamage(
   let multiOp3 = 1;
   let youEndHP, opEndHP;
 
+  //STAB gives 5 more Break
   if (isStabYou) {
     addYou1 += 5;
   }
   if (isStabOp) {
     addOp1 += 5;
   }
+
   if (isAdvYou) {
     multiOp2 = 0.5;
     if (youType === "Body") {
@@ -127,41 +130,28 @@ export function partDamage(
     }
   }
 
-  if (youType === youPart || youType === "Full") {
-    resultYou += Math.min(youMove.Cost, youPartHp - 1);
+  if (youType === youPart) {
+    resultYou += Math.min(youMove.Cost, youPartHp - 1); //Part HP reduces by the cost of the move, cannot go below 1.
     //console.log(youPart,"1:",Math.min(youMove.Cost, youPartHp - 1));
   }
-  if (opType === opPart || opType === "Full") {
+  if (opType === opPart) {
     resultOp += Math.min(opMove.Cost, opPartHp - 1);
   }
 
-  if (youType === "Full" || opType === "Full") {
+  if (youType === youPart || (youType === "Full" && opType === youPart)) {
     resultYou += Math.floor(
-      (((opMon.Break + opMove.Break + tempLvl / 7) * multiOp3 + addOp1) *
-        multiOp2) /
-        3,
+      ((opMon.Break + opMove.Break + tempLvl / 7) * multiOp3 + addOp1) *
+        multiOp2,
     );
-    //console.log(youPart,"2:",Math.floor((opMon.Break + opMove.Break + tempLvl / 15) / 3));
-    resultOp += Math.floor(
-      (((youMon.Break + youMove.Break + tempLvl / 7) * multiYou3 + addYou1) *
-        multiYou2) /
-        3,
-    );
-  } else {
-    if (youType === youPart) {
-      resultYou += Math.floor(
-        ((opMon.Break + opMove.Break + tempLvl / 7) * multiOp3 + addOp1) *
-          multiOp2,
-      );
-      //console.log(youPart,"3:",Math.floor(opMon.Break + opMove.Break + tempLvl / 15));
-    }
-    if (opType === opPart) {
-      resultOp += Math.floor(
-        ((youMon.Break + youMove.Break + tempLvl / 7) * multiYou3 + addYou1) *
-          multiYou2,
-      );
-    }
+    //console.log(youPart,"3:",Math.floor(opMon.Break + opMove.Break + tempLvl / 15));
   }
+  if (opType === opPart || (opType === "Full" && youType === opPart)) {
+    resultOp += Math.floor(
+      ((youMon.Break + youMove.Break + tempLvl / 7) * multiYou3 + addYou1) *
+        multiYou2,
+    );
+  }
+
   if (youPartHp === 0) {
     youEndHP = 0;
   } else if (isAdvYou) {
@@ -183,16 +173,6 @@ export function partDamage(
 
 //Check for move type matchup
 export function checkAdvantage(youMove, opMove) {
-  if (
-    youMove.id === 5 ||
-    youMove.id === 6 ||
-    youMove.id === 7 ||
-    opMove.id === 5 ||
-    opMove.id === 6 ||
-    opMove.id === 7
-  ) {
-    return [false, false];
-  }
   const youType = groupAtkType(youMove.Type);
   const opType = groupAtkType(opMove.Type);
 
@@ -202,8 +182,15 @@ export function checkAdvantage(youMove, opMove) {
     Legs: "Head",
   };
 
-  const isAdvYou = advantageMap[youType] === opType;
-  const isAdvOp = advantageMap[opType] === youType;
+  let isAdvYou = advantageMap[youType] === opType;
+  //Broken moves cannot give advantage
+  if (youMove.id === 5 || youMove.id === 6 || youMove.id === 7) {
+    isAdvYou = false;
+  }
+  let isAdvOp = advantageMap[opType] === youType;
+  if (opMove.id === 5 || opMove.id === 6 || opMove.id === 7) {
+    isAdvOp = false;
+  }
 
   return [isAdvYou, isAdvOp];
 }

@@ -34,14 +34,15 @@
     "Hit": 100,
     "Crit": 5,
     "Effect": null
-  },{
+  },
+  {
     "id": 3,
     "Name": "Breath1",
     "Type": "Breath",
     "Element": "Normal",
     "Strength": 50,
-    "Break": 10,
-    "Cost": 5,
+    "Break": 0,
+    "Cost": 0,
     "Hit": 100,
     "Crit": 5,
     "Effect": null
@@ -93,6 +94,40 @@
     "Hit": 80,
     "Crit": 0,
     "Effect": "Cannot break parts. Cannot crit."
+  },{
+    "id": 8,
+    "Name": "Ray Blade",
+    "Type": "Head",
+    "Element": "Thunder",
+    "Strength": 70,
+    "Break": 15,
+    "Cost": 25,
+    "Hit": 90,
+    "Crit": 20,
+    "Effect": null
+  },
+  {
+    "id": 9,
+    "Name": "Firebrand",
+    "Type": "Tail",
+    "Element": "Fire",
+    "Strength": 80,
+    "Break": 30,
+    "Cost": 30,
+    "Hit": 85,
+    "Crit": 5,
+    "Effect": null
+  },
+  {
+    "id": 10,
+    "Name": "Snow Stomp",
+    "Type": "Legs",
+    "Element": "Ice",
+    "Strength": 60,
+    "Break": 15,
+    "Cost": 15,
+    "Hit": 100,
+    "Crit": 5,
+    "Effect": null
   }
-  
 ]
