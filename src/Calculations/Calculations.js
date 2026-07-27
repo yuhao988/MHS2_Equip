@@ -227,6 +227,9 @@ export function groupAtkType(atkType) {
     case "Claws":
       groupedType = "Legs";
       break;
+    case "Legs":
+      groupedType = "Legs";
+      break;
     case "Wings":
       groupedType = "Legs";
       break;
