@@ -8,6 +8,7 @@ import {
   checkAdvantage,
   validateMove,
   groupAtkType,
+  hitCrit,
 } from "./Calculations/Calculations";
 import "./App.css";
 
@@ -147,6 +148,8 @@ function BattleSim(prop) {
     const ratioYou = costDurRatio(attackUsed, [curHdYou, curBdyYou, curLgsYou]);
     const ratioOp = costDurRatio(attackUsedOp, [curHdOp, curBdyOp, curLgsOp]);
     ///console.log(`You Advantage: ${isAdvYou}, Opponent Advantage: ${isAdvOp}`);
+    const [hitYou, critYou] = hitCrit(attackUsed);
+    const [hitOp, critOp] = hitCrit(attackUsedOp);
 
     let [youHPAfter, opHPAfter] = healthDamage(
       attackUsed,
@@ -159,6 +162,8 @@ function BattleSim(prop) {
       durabOp,
       ratioYou,
       ratioOp,
+      [hitYou, critYou],
+      [hitOp, critOp],
     );
     setCurHPYou(youHPAfter);
     setCurHPOp(opHPAfter);
@@ -175,6 +180,8 @@ function BattleSim(prop) {
       "Head",
       ratioYou,
       ratioOp,
+      [hitYou, critYou],
+      [hitOp, critOp],
     );
     let [youBdyAfter, opBdyAfter] = partDamage(
       attackUsed,
@@ -189,6 +196,8 @@ function BattleSim(prop) {
       "Body",
       ratioYou,
       ratioOp,
+      [hitYou, critYou],
+      [hitOp, critOp],
     );
     let [youLgsAfter, opLgsAfter] = partDamage(
       attackUsed,
@@ -203,6 +212,8 @@ function BattleSim(prop) {
       "Legs",
       ratioYou,
       ratioOp,
+      [hitYou, critYou],
+      [hitOp, critOp],
     );
     setCurHdYou(youHdAfter);
     setCurHdOp(opHdAfter);
@@ -226,6 +237,10 @@ function BattleSim(prop) {
       bdyDamageOp: prevBdyOp - opBdyAfter,
       lgsDamageYou: prevLgsYou - youLgsAfter,
       lgsDamageOp: prevLgsOp - opLgsAfter,
+      youHit: hitYou,
+      opHit: hitOp,
+      youCrit: critYou,
+      opCrit: critOp,
     };
 
     setBattleLog([...battleLog, logEntry]);
@@ -440,14 +455,38 @@ function BattleSim(prop) {
               <div
                 style={{ fontSize: "12px", color: "#555", marginTop: "4px" }}
               >
+                {!log.youHit && (
+                  <span>
+                    Your attack missed! <br />
+                  </span>
+                )}
+                {log.youCrit && (
+                  <span>
+                    Your attack was a critical hit! <br />
+                  </span>
+                )}
+                <span>HP Damage to opponent: {log.hpDamageOp} </span>
+                <br />
                 <span>
-                  HP Damage: {log.hpDamageYou} to you, {log.hpDamageOp} to
-                  opponent |{" "}
-                </span>
+                  Damage to Head: {log.hdDamageOp}
+                  <br />
+                  Damage to Body:
+                  {log.bdyDamageOp} <br />
+                  Damage to Legs:
+                  {log.lgsDamageOp} <br />
+                </span><br/>
+                {!log.opHit && <span>Opponent's attack missed!<br/></span>}
+                {log.opCrit && (
+                  <span>Opponent's attack was a critical hit!<br/></span>
+                )}
+                <span>HP Damage to you: {log.hpDamageYou} <br/></span>
                 <span>
-                  Parts: Head({log.hdDamageYou}/{log.hdDamageOp}) Body(
-                  {log.bdyDamageYou}/{log.bdyDamageOp}) Legs({log.lgsDamageYou}/
-                  {log.lgsDamageOp})
+                  Damage to Head: {log.hdDamageYou}
+                  <br />
+                  Damage to Body:
+                  {log.bdyDamageYou} <br />
+                  Damage to Legs:
+                  {log.lgsDamageYou} <br />
                 </span>
               </div>
             </div>

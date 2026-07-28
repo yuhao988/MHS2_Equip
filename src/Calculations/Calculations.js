@@ -13,6 +13,8 @@ export function healthDamage(
   opDurab,
   youRatio,
   opRatio,
+  hitCritYou,
+  hitCritOp,
 ) {
   const youType = groupAtkType(youMove.Type);
   const opType = groupAtkType(opMove.Type);
@@ -26,6 +28,10 @@ export function healthDamage(
   let multiOp2 = 1;
   let multiYou3 = 1; //Durability multiplier
   let multiOp3 = 1;
+  const multiHitYou = hitCritYou[0] ? 1 : 0; //Hit multiplier
+  const multiHitOp = hitCritOp[0] ? 1 : 0;
+  const multiCritYou = hitCritYou[1] ? 1.6 : 1; //Crit multiplier
+  const multiCritOp = hitCritOp[1] ? 1.6 : 1;
 
   if (isAdvYou) {
     multiOp2 = 0.5; //Half damage from opponent when you have advantage
@@ -47,24 +53,30 @@ export function healthDamage(
     }
   }
 
-  let resultYou = Math.floor(
-    Math.max(
-      (((youMon.Attack / opMon.Defence) * youMove.Strength) / 2 + tempLvl / 5) *
-        multiYou1,
-      1,
-    ) *
-      multiYou2 *
-      multiYou3,
-  );
-  let resultOp = Math.floor(
-    Math.max(
-      (((opMon.Attack / youMon.Defence) * opMove.Strength) / 2 + tempLvl / 5) *
-        multiOp1,
-      1,
-    ) *
-      multiOp2 *
-      multiOp3,
-  );
+  let resultYou =
+    Math.floor(
+      Math.max(
+        (((youMon.Attack / opMon.Defence) * youMove.Strength) / 2 +
+          tempLvl / 5) *
+          multiYou1,
+        1,
+      ) *
+        multiYou2 *
+        multiYou3 *
+        multiCritYou,
+    ) * multiHitYou;
+  let resultOp =
+    Math.floor(
+      Math.max(
+        (((opMon.Attack / youMon.Defence) * opMove.Strength) / 2 +
+          tempLvl / 5) *
+          multiOp1,
+        1,
+      ) *
+        multiOp2 *
+        multiOp3 *
+        multiCritOp,
+    ) * multiHitOp;
 
   const threshold1 = isAdvYou ? 1 : 0;
   const threshold2 = isAdvOp ? 1 : 0;
@@ -87,6 +99,8 @@ export function partDamage(
   opPart,
   youRatio,
   opRatio,
+  hitCritYou,
+  hitCritOp,
 ) {
   const youType = groupAtkType(youMove.Type);
   const opType = groupAtkType(opMove.Type);
@@ -103,6 +117,10 @@ export function partDamage(
   let multiOp2 = 1;
   let multiYou3 = 1;
   let multiOp3 = 1;
+  const multiHitYou = hitCritYou[0] ? 1 : 0;
+  const multiHitOp = hitCritOp[0] ? 1 : 0;
+  const multiCritYou = hitCritYou[1] ? 1.6 : 1;
+  const multiCritOp = hitCritOp[1] ? 1.6 : 1;
   let youEndHP, opEndHP;
 
   //STAB gives 5 more Break
@@ -139,17 +157,20 @@ export function partDamage(
   }
 
   if (youType === youPart || (youType === "Full" && opType === youPart)) {
-    resultYou += Math.floor(
-      ((opMon.Break + opMove.Break + tempLvl / 7) * multiOp3 + addOp1) *
-        multiOp2,
-    );
+    resultYou +=
+      Math.floor(
+        ((opMon.Break + opMove.Break + tempLvl / 7) * multiOp3 + addOp1) *
+          multiOp2 *
+          multiCritOp,
+      ) * multiHitOp;
     //console.log(youPart,"3:",Math.floor(opMon.Break + opMove.Break + tempLvl / 15));
   }
   if (opType === opPart || (opType === "Full" && youType === opPart)) {
     resultOp += Math.floor(
       ((youMon.Break + youMove.Break + tempLvl / 7) * multiYou3 + addYou1) *
-        multiYou2,
-    );
+        multiYou2 *
+        multiCritYou,
+    ) * multiHitYou;
   }
 
   if (youPartHp === 0) {
@@ -258,4 +279,18 @@ export function validateMove(move, durability) {
   }
 
   return validatedMove;
+}
+
+export function hitCrit(move) {
+  const hitChance = move.Hit;
+  const critChance = move.Crit;
+  const hitRoll = Math.floor(Math.random() * 100);
+  const critRoll = Math.floor(Math.random() * 100);
+  if (hitRoll > hitChance) {
+    return [false, false];
+  } else if (critRoll > critChance) {
+    return [true, false];
+  } else {
+    return [true, true];
+  }
 }
